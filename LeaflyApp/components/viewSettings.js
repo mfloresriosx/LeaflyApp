@@ -1,0 +1,190 @@
+import React, { useState } from "react";
+import {
+  Image,
+  Center,
+  Heading,
+  useToast,
+  Text,
+  Container,
+  NativeBaseProvider,
+  Box,
+  Button,
+  Icon,
+  Stack,
+  Pressable,
+  Input,
+  extendTheme,
+} from "native-base";
+import axios from "axios";
+import { MaterialIcons } from "@expo/vector-icons";
+import Inicio from "./Inicio";
+import Menu from "./Menu";
+
+var Luminosidad = require("../assets/icono_luminosidad.png");
+var avatarIconn = require("../assets/new.png");
+
+function Login({ navigation }) {
+  const [isHidden, setIsHidden] = useState(false);
+  const toast = useToast()
+  const [value, setValue] = useState({
+    nickname: "",
+    password: "",
+  });
+
+  const handleClick = () => setIsHidden(!isHidden);
+  const handleSubmit = async () => {
+    const request = {};
+    request.nickname = value.nickname;
+    request.password = value.password;
+
+    axios
+      .post("http://192.168.5.186/api/users/add.php", request, {
+        mode: "cors",
+        headers: {
+          "Content-Type": "application/json",
+          "Access-Control-Allow-Origin": "*",
+        },
+      })
+      .then(
+        (response) => {
+          console.log(response.data);
+          if (response.data == true) {
+            navigation.navigate("menu");
+          }else{
+            toast.show({
+              duration:1500,
+              title: "User added successfully",
+            })
+          }
+        },
+        (error) => {
+          console.log(error);
+        }
+      );
+  };
+  const Submit = () => {
+    return (
+      <Button
+        colorScheme="lightBlue"
+        variant="rounded"
+        backgroundColor="cyan.400"
+        onPress={handleSubmit}
+      >
+        <Text fontSize="lg" color="white">
+          Sign Up
+        </Text>
+      </Button>
+    );
+  };
+  const theme = extendTheme({
+    components: {
+      Button: {
+        variants: {
+          rounded: ({ colorScheme }) => {
+            return {
+              bg: `${colorScheme}.500`,
+              rounded: "full",
+              
+            };
+          },
+        },
+      },
+      Input: {
+        variants: {
+          rounded: ({ colorScheme }) => {
+            return {
+              bg: "transparent",
+              rounded: "full",
+            };
+          },
+        },
+        defaultProps: {
+          height: 45,
+          width:40,
+          margin: 1,
+          
+          },
+        
+      },
+    },
+  });
+
+  return (
+    <NativeBaseProvider theme={theme}>
+      <Box
+        flex={15}
+        bg="#075985"
+        
+        alignItems="center"
+        justifyContent="center"
+      >
+        <Center px="3">
+          <Container alignSelf="center">
+            <Stack space={5} w="100%" direction="column" alignItems="center">
+              <Center>
+                <Image
+                  //source={require('../assets/semillas.png')}
+                  source={avatarIconn}
+                  alt="Alternate Text"
+                  size={"xl"}
+                  h="250"
+                  w="250"
+                />
+                <Input
+                marginTop="4"
+                  colorScheme="info"
+                  variant="rounded"
+                  style={{ color: "#ecfeff" }}
+                  size="lg"
+                  InputLeftElement={
+                    <Icon
+                      as={<MaterialIcons name="person" />}
+                      size={5}
+                      ml="2"
+                      color="#ecfeff"
+                    />
+                  }
+                  I
+                  placeholder="Nickname"
+                  onChangeText={(text) =>
+                    setValue({ ...value, nickname: text })
+                  }
+                />
+                <Input
+                marginTop="2"
+                 marginBottom="3"
+                  colorScheme="info"
+                  variant="rounded"
+                  style={{ color: "#ecfeff" }}
+                  size="md"
+                  placeholder="Password"
+                  type={isHidden ? "text" : "password"}
+                  onChangeText={(text) =>
+                    setValue({ ...value, password: text })
+                  }
+                  InputRightElement={
+                    <Pressable p={2} onPress={handleClick}>
+                      <Icon
+                        as={
+                          <MaterialIcons
+                            name={isHidden ? "visibility-off" : "visibility"}
+                          />
+                        }
+                        color="#ecfeff"
+                        size={5}
+                        ml="2"
+                        name="home"
+                      />
+                    </Pressable>
+                  }
+                />
+                <Submit />
+              </Center>
+            </Stack>
+          </Container>
+        </Center>
+      </Box>
+    </NativeBaseProvider>
+  );
+}
+export default Login;
